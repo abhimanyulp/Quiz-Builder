@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        * {
+            margin: 0px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        nav {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: snow;
+
+        }
+
+        nav>h1 {
+            color: brown;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #quizSubmit {
+            margin-left: 20px;
+            width: 150px;
+            height: 60px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .card {
+            /* border: 2px solid black; */
+            background-color: whitesmoke;
+            margin: 20px;
+            border-radius: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h1>Quiz</h1>
+    </nav>
+
+    <main>
+        <a href="./dashboard.html">Go Back</a>
+        <div id="quiz">
+            <div id="quizContainer">
+                <!-- Append quiz here -->
+            </div>
+            <button id="quizSubmit">Submit</button>
+        </div>
+
+    </main>
+</body>
+<script>
+
+    const baseServerURL = "http://localhost:8080"
+    const quizId = localStorage.getItem("quizId")
+    const userEmail = localStorage.getItem("useremail")
+
+    let quizContainer = document.getElementById("quizContainer")
+
+    let quizSubmit = document.getElementById("quizSubmit")
+
+    let mainData
+
+
+
+
+
+    quizSubmit.addEventListener("click", (e) => {
+        e.preventDefault()
+
+        let answer_1 = document.getElementById("input-1")
+        let answer_2 = document.getElementById("input-2")
+        let answer_3 = document.getElementById("input-3")
+        let answer_4 = document.getElementById("input-4")
+
+        let answers = [answer_1.value, answer_2.value, answer_3.value, answer_4.value]
+
+        let score = 0
+
+        mainData.forEach((element, index) => {
+
+            if (element.correctOptions[0] == answers[index]) {
+                score++
+            }
+
+        })
+
+
+        let scoreObj = {
+            email: userEmail,
+            score: score
+        }
+
+        if (answer_1.value || answer_2.value || answer_3.value || answer_4.value) {
+
+            fetch(`${baseServerURL}/leaderboard`, {
+                method: "POST",
+                body: JSON.stringify(scoreObj),
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert(`Your Score is: s${score}`)
+
+                    setTimeout(() => {
+                        window.location.href = "./dashboard.html"
+                    }, 2000)
+
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        } else {
+            alert("Please fill the form")
+        }
+
+    })
+
+
+    PageLoad()
+    function PageLoad() {
+
+        fetch(`${baseServerURL}/quiz/${quizId}`, {
+            method: "GET",
+            headers: {
+                'Content-type': 'application/json'
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                // alert(data.msg)
+                mainData = data.data.questions
+                console.log(mainData)
+                Display(mainData)
+            })
+            .catch(error => {
+                console.log(err)
+            })
+
+    }
+
+
+    function Display(data) {
+
+        quizContainer.innerHTML = null
+
+        data.forEach((element, index) => {
+
+            let card = document.createElement("div")
+            card.setAttribute("class", "card")
+
+            let title = document.createElement("h1")
+            title.setAttribute("class", "title")
+            title.innerText = element.title
+
+            let selectInput = document.createElement("select")
+            selectInput.setAttribute("id", `input-${index + 1}`)
+
+            let option_0 = document.createElement("option")
+            option_0.innerText = "Select"
+
+            let option_1 = document.createElement("option")
+            option_1.value = 1
+            option_1.innerText = element.answerOptions[0]
+
+            let option_2 = document.createElement("option")
+            option_2.value = 2
+            option_2.innerText = element.answerOptions[1]
+
+            let option_3 = document.createElement("option")
+            option_3.value = 3
+            option_3.innerText = element.answerOptions[2]
+
+            let option_4 = document.createElement("option")
+            option_4.value = 4
+            option_4.innerText = element.answerOptions[3]
+
+            selectInput.append(option_0, option_1, option_2, option_3, option_4)
+
+            card.append(title, selectInput)
+            quizContainer.append(card)
+        });
+
+    }
+
+</script>
+
+</html>
