@@ -47,4 +47,19 @@ quizRouter.post("/", async (req, res) => {
 
 })
 
+// Delete Quiz 
+quizRouter.delete("/:id", async (req, res) => {
+    const { id } = req.params
+    try {
+
+        await quizModel.findByIdAndDelete({ _id: id})
+        res.status(200).send({ "msg": "Quiz Deleted!" })
+
+
+    } catch (error) {
+        res.status(400).send({ "msg": error.message })
+    }
+
+})
+
 module.exports = { quizRouter }

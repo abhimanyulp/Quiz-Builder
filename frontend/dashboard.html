@@ -85,11 +85,11 @@
 
         }
 
-        .editBtn{
+        .editBtn {
             border: none;
             cursor: pointer;
             color: white;
-            background-color:olive;
+            background-color: olive;
             width: 40%;
             height: 100%;
             border-radius: 5px;
@@ -389,8 +389,22 @@
                 deleteBtn.setAttribute("class", "deleteBtn")
                 deleteBtn.innerText = "Delete"
 
-                deleteBtn.addEventListener("click", ()=>{
+                deleteBtn.addEventListener("click", () => {
 
+                    fetch(`${baseServerURL}/quiz/${element._id}`, {
+                        method: "DELETE",
+                        headers: {
+                            'Content-type': 'application/json'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert(data.msg)
+                            PageLoad()
+                        })
+                        .catch(error => {
+                            console.log(err)
+                        })
 
 
                 })
@@ -416,7 +430,7 @@
                 leaderboardBtn.setAttribute("class", "cardBtn")
                 leaderboardBtn.innerText = "Leaderboard"
 
-                leaderboardBtn.addEventListener("click", ()=>{
+                leaderboardBtn.addEventListener("click", () => {
                     setTimeout(() => {
                         window.location.href = "./leaderboard.html"
                     }, 1000)
